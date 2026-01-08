@@ -42,8 +42,33 @@ span.header-left {
   top: 40px;
   left: 40px;
   font-size: 3em;
-  color: white;
+  color: #FFD700;
   line-height: 1em;
+  text-shadow: 
+    0 0 10px #FFD700,
+    0 0 20px #FFD700,
+    0 0 30px #FFD700,
+    0 0 40px #FFA500;
+  animation: glow-blink 2s ease-in-out infinite;
+}
+
+@keyframes glow-blink {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 
+      0 0 10px #FFD700,
+      0 0 20px #FFD700,
+      0 0 30px #FFD700,
+      0 0 40px #FFA500;
+  }
+  50% {
+    opacity: 0.6;
+    text-shadow: 
+      0 0 5px #FFD700,
+      0 0 10px #FFD700,
+      0 0 15px #FFD700,
+      0 0 20px #FFA500;
+  }
 }
 
 a {
