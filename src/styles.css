@@ -42,32 +42,37 @@ span.header-left {
   top: 40px;
   left: 40px;
   font-size: 3em;
-  color: #FFD700;
+  color: #2bff55;
   line-height: 1em;
-  text-shadow: 
-    0 0 10px #FFD700,
-    0 0 20px #FFD700,
-    0 0 30px #FFD700,
-    0 0 40px #FFA500;
-  animation: glow-blink 2s ease-in-out infinite;
+  text-shadow:
+    0 0 8px rgba(43, 255, 85, 0.7),
+    0 0 16px rgba(43, 255, 85, 0.9),
+    0 0 32px rgba(43, 255, 85, 0.6);
+  animation: olympus-twinkle 1.6s ease-in-out infinite;
 }
 
-@keyframes glow-blink {
-  0%, 100% {
+@keyframes olympus-twinkle {
+  0%,
+  100% {
     opacity: 1;
-    text-shadow: 
-      0 0 10px #FFD700,
-      0 0 20px #FFD700,
-      0 0 30px #FFD700,
-      0 0 40px #FFA500;
+    text-shadow:
+      0 0 6px rgba(43, 255, 85, 0.5),
+      0 0 18px rgba(43, 255, 85, 0.9),
+      0 0 36px rgba(43, 255, 85, 0.7);
   }
-  50% {
-    opacity: 0.6;
-    text-shadow: 
-      0 0 5px #FFD700,
-      0 0 10px #FFD700,
-      0 0 15px #FFD700,
-      0 0 20px #FFA500;
+  45% {
+    opacity: 0.35;
+    text-shadow:
+      0 0 2px rgba(43, 255, 85, 0.3),
+      0 0 8px rgba(43, 255, 85, 0.5),
+      0 0 16px rgba(43, 255, 85, 0.4);
+  }
+  60% {
+    opacity: 0.9;
+    text-shadow:
+      0 0 10px rgba(43, 255, 85, 0.7),
+      0 0 22px rgba(43, 255, 85, 1),
+      0 0 44px rgba(43, 255, 85, 0.8);
   }
 }
 

@@ -19,7 +19,7 @@ export default function Details() {
           {/* Illustrations @ Tina Henschel */}
         </a>
       </div>
-      <span className="header-left">Здравствуйте</span>
+      <span className="header-left">Приветствую, сэр</span>
     </>
   )
 }
