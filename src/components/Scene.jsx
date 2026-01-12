@@ -28,6 +28,9 @@ function Experience() {
   const layersRef = useRef([])
   const [movement] = useState(() => new Vector3())
   const [temp] = useState(() => new Vector3())
+  const deviceOrientation = useRef({ beta: 0, gamma: 0, available: false })
+  const permissionRequested = useRef(false)
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
   const layers = [
     { texture: textures[0], x: 0, y: 0, z: 0, factor: 0.005, scale: scaleW },
     { texture: textures[1], x: 0, y: 0, z: 10, factor: 0.005, scale: scaleW },
@@ -62,28 +65,157 @@ function Experience() {
     },
   ]
 
-  // Определяем, является ли устройство мобильным
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
   const movementMultiplier = isMobile ? 10 : 20
   const rotationMultiplier = isMobile ? 0.5 : 1
   const fireflyCount = isMobile ? 10 : 20
   const fireflyRadius = isMobile ? 60 : 80
 
+  // Обработка ориентации устройства для мобильных
+  useLayoutEffect(() => {
+    if (!isMobile || typeof window === 'undefined') return
+
+    const handleOrientation = (event) => {
+      // beta - наклон вперед-назад (от -180 до 180, где 0 - горизонтально)
+      // gamma - наклон влево-вправо (от -90 до 90, где 0 - вертикально)
+      // Для движения слева направо используем gamma!
+      if (event.gamma !== null && !isNaN(event.gamma)) {
+        deviceOrientation.current.gamma = event.gamma
+        deviceOrientation.current.beta = event.beta !== null && !isNaN(event.beta) ? event.beta : 0
+        deviceOrientation.current.available = true
+      }
+    }
+
+    // Альтернативный обработчик через devicemotion (иногда работает лучше на iOS)
+    const handleMotion = (event) => {
+      if (event.rotationRate) {
+        // rotationRate - это скорость вращения, накапливаем её для получения угла
+        const gammaRate = event.rotationRate.gamma || 0
+        const betaRate = event.rotationRate.beta || 0
+        if (!isNaN(gammaRate) && !isNaN(betaRate)) {
+          // Интегрируем скорость для получения угла (упрощенно)
+          deviceOrientation.current.gamma = (deviceOrientation.current.gamma * 0.9) + (gammaRate * 0.1 * 10)
+          deviceOrientation.current.beta = (deviceOrientation.current.beta * 0.9) + (betaRate * 0.1 * 10)
+          deviceOrientation.current.available = true
+        }
+      }
+    }
+
+    // Функция для запроса разрешения
+    const requestPermission = () => {
+      // Для iOS 13+ требуется явное разрешение по действию пользователя
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        // Проверяем, не запрашивали ли уже
+        if (permissionRequested.current) return
+        permissionRequested.current = true
+
+        // Запрашиваем разрешение для обоих событий
+        Promise.all([
+          DeviceOrientationEvent.requestPermission(),
+          typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function'
+            ? DeviceMotionEvent.requestPermission()
+            : Promise.resolve('granted')
+        ]).then(([orientationResponse, motionResponse]) => {
+          if (orientationResponse === 'granted') {
+            window.addEventListener('deviceorientation', handleOrientation, { passive: true })
+            console.log('Разрешение на deviceorientation получено')
+          }
+          if (motionResponse === 'granted') {
+            window.addEventListener('devicemotion', handleMotion, { passive: true })
+            console.log('Разрешение на devicemotion получено')
+          }
+          if (orientationResponse !== 'granted' && motionResponse !== 'granted') {
+            console.log('Разрешения на ориентацию отклонены')
+            permissionRequested.current = false
+          }
+        })
+          .catch((error) => {
+            console.warn('Ошибка запроса разрешения на ориентацию:', error)
+            permissionRequested.current = false
+          })
+      } else {
+        // Для Android и старых iOS - сразу добавляем обработчики
+        try {
+          window.addEventListener('deviceorientation', handleOrientation, { passive: true })
+          window.addEventListener('devicemotion', handleMotion, { passive: true })
+        } catch (e) {
+          console.warn('Не удалось добавить обработчики ориентации:', e)
+        }
+      }
+    }
+
+    // Запрашиваем разрешение при первом касании (для iOS)
+    const handleFirstTouch = (e) => {
+      // Для iOS запрос должен быть по действию пользователя
+      requestPermission()
+    }
+
+    // Для Android и старых iOS - сразу запрашиваем
+    if (typeof DeviceOrientationEvent === 'undefined' || typeof DeviceOrientationEvent.requestPermission !== 'function') {
+      requestPermission()
+    }
+
+    // Для iOS 13+ - запрашиваем при первом касании/клике
+    // Используем capture phase для более раннего перехвата
+    document.addEventListener('touchstart', handleFirstTouch, { once: true, passive: true, capture: true })
+    document.addEventListener('click', handleFirstTouch, { once: true, passive: true, capture: true })
+    
+    // Также пробуем при любом взаимодействии с canvas
+    const canvasElement = document.querySelector('canvas')
+    if (canvasElement) {
+      canvasElement.addEventListener('touchstart', handleFirstTouch, { once: true, passive: true })
+      canvasElement.addEventListener('click', handleFirstTouch, { once: true, passive: true })
+    }
+
+    return () => {
+      window.removeEventListener('deviceorientation', handleOrientation)
+      window.removeEventListener('devicemotion', handleMotion)
+      document.removeEventListener('touchstart', handleFirstTouch, { capture: true })
+      document.removeEventListener('click', handleFirstTouch, { capture: true })
+      const canvasElement = document.querySelector('canvas')
+      if (canvasElement) {
+        canvasElement.removeEventListener('touchstart', handleFirstTouch)
+        canvasElement.removeEventListener('click', handleFirstTouch)
+      }
+    }
+  }, [isMobile])
+
   useFrame((state, delta) => {
-    movement.lerp(temp.set(state.pointer.x, state.pointer.y * 0.2, 0), 0.2)
+    // Используем ориентацию устройства на мобильных, иначе указатель мыши/касания
+    let targetX = state.pointer.x
+    let targetY = state.pointer.y
+
+    if (isMobile && deviceOrientation.current.available) {
+      // gamma - наклон влево-вправо (от -90 до 90, где 0 - вертикально)
+      // beta - наклон вперед-назад (от -180 до 180, где 0 - горизонтально)
+      const gamma = deviceOrientation.current.gamma
+      const beta = deviceOrientation.current.beta
+      
+      // Нормализуем gamma для горизонтального движения (влево-вправо)
+      // Ограничиваем от -45 до 45 градусов для более плавного управления
+      const normalizedGamma = Math.max(-45, Math.min(45, gamma)) / 45
+      // Нормализуем beta для вертикального движения
+      const normalizedBeta = Math.max(-30, Math.min(30, beta)) / 30
+      
+      // Используем gamma для горизонтального движения (влево-вправо)
+      targetX = normalizedGamma
+      // Используем beta для вертикального движения (вперед-назад)
+      targetY = normalizedBeta * 0.2
+    }
+
+    movement.lerp(temp.set(targetX, targetY, 0), 0.2)
     group.current.position.x = MathUtils.lerp(
       group.current.position.x,
-      state.pointer.x * movementMultiplier,
+      targetX * movementMultiplier,
       0.05,
     )
     group.current.rotation.x = MathUtils.lerp(
       group.current.rotation.x,
-      state.pointer.y / (20 * rotationMultiplier),
+      targetY / (20 * rotationMultiplier),
       0.05,
     )
     group.current.rotation.y = MathUtils.lerp(
       group.current.rotation.y,
-      -state.pointer.x / (2 * rotationMultiplier),
+      -targetX / (2 * rotationMultiplier),
       0.05,
     )
     if (layersRef.current[4] && layersRef.current[5]) {
