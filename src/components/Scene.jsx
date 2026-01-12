@@ -53,10 +53,10 @@ function Experience() {
     { texture: textures[2], x: 0, y: 0, z: 20, scale: scaleW },
     {
       texture: textures[3],
-      x: isMobile ? 6 : 0, // Смещение вправо для мобильных устройств
+      x: isMobile ? 38 : 0, // Смещение вправо для мобильных устройств
       y: 0,
       z: 30,
-      scaleFactor: isMobile ? 0.65 : 0.83, // Уменьшен для мобильных устройств
+      scaleFactor:  isMobile ? 0.60 : 0.73,
       scale: scaleN,
     },
     {
