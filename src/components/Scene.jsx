@@ -15,6 +15,7 @@ import '../materials/layerMaterial'
 function Experience() {
   const scaleN = useAspect(1600, 1000, 1.05)
   const scaleW = useAspect(2200, 1000, 1.05)
+  const scaleW2 = useAspect(2200, 1000, 1.2)
   const textures = useTexture([
     bgUrl,
     starsUrl,
@@ -51,13 +52,13 @@ function Experience() {
     },
     {
       texture: textures[5],
-      x: -20,
-      y: -20,
+      x: 0,
+      y: 0,
       z: 49,
-      factor: 0.04,
-      scaleFactor: 1.3,
-      wiggle: 1,
-      scale: scaleW,
+      factor: 0.02,
+      scaleFactor: 1.0,
+      wiggle: 0.6,
+      scale: scaleW2,
     },
   ]
 
