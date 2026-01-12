@@ -53,7 +53,7 @@ function Experience() {
     { texture: textures[2], x: 0, y: 0, z: 20, scale: scaleW },
     {
       texture: textures[3],
-      x: 0,
+      x: isMobile ? 6 : 0, // Смещение вправо для мобильных устройств
       y: 0,
       z: 30,
       scaleFactor: 0.83,
@@ -325,10 +325,12 @@ function Experience() {
     
     // Максимальное смещение - фоновые слои теперь достаточно большие
     const maxOffset = isMobile ? 15 : 18
+    // Постоянное смещение влево для мобильных устройств (уменьшено для лучшей видимости медведя)
+    const mobileOffset = isMobile ? -1.5 : 0
     
     group.current.position.x = MathUtils.lerp(
       group.current.position.x,
-      clampedTargetX * maxOffset,
+      clampedTargetX * maxOffset + mobileOffset,
       0.05,
     )
     group.current.rotation.x = MathUtils.lerp(
