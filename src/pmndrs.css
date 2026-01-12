@@ -34,6 +34,9 @@ pre[class*='language-'] {
   margin: -2.5em 0 !important;
   overflow: auto !important;
   border-radius: 0.75em !important;
+  -webkit-overflow-scrolling: touch;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 :not(pre) > code[class*='language-'],
@@ -120,4 +123,43 @@ pre[class*='language-'] {
 
 .token.entity {
   cursor: help !important;
+}
+
+/* Мобильная оптимизация */
+@media only screen and (max-width: 768px) {
+  pre[class*='language-'] {
+    padding: 1.5em !important;
+    margin: 0 !important;
+    font-size: 0.85em !important;
+  }
+  
+  code[class*='language-'],
+  pre[class*='language-'] {
+    font-size: 0.85em !important;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  pre[class*='language-'] {
+    padding: 1em !important;
+    margin: 0 !important;
+    font-size: 0.75em !important;
+  }
+  
+  code[class*='language-'],
+  pre[class*='language-'] {
+    font-size: 0.75em !important;
+  }
+}
+
+@media only screen and (max-width: 360px) {
+  pre[class*='language-'] {
+    padding: 0.8em !important;
+    font-size: 0.7em !important;
+  }
+  
+  code[class*='language-'],
+  pre[class*='language-'] {
+    font-size: 0.7em !important;
+  }
 }

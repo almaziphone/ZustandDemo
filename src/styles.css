@@ -12,6 +12,9 @@ body,
   -webkit-touch-callout: none;
   overflow: hidden;
   background: #010101;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  touch-action: pan-x pan-y;
 }
 
 #root {
@@ -50,6 +53,10 @@ span.header-left {
     0 0 30px #FFD700,
     0 0 40px #FFA500;
   animation: glow-blink 2s ease-in-out infinite;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+  z-index: 10;
 }
 
 @keyframes glow-blink {
@@ -89,8 +96,14 @@ a {
   font-size: 16px;
   color: inherit;
   position: absolute;
-  display: inline;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .nav {
@@ -134,6 +147,22 @@ a.bottom-right {
   color: #fff;
   outline: 0;
   border: 0;
+  border-radius: 5px;
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: background-color 0.2s ease;
+}
+
+.snippet-lang:hover {
+  background-color: #3a3a32;
+}
+
+.snippet-lang:active {
+  background-color: #4a4a42;
 }
 
 .copy-button {
@@ -150,25 +179,180 @@ a.bottom-right {
   background: transparent;
   color: #f8f9fa;
   cursor: pointer;
+  transition: background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .copy-button:hover {
   background-color: #5f5e5d;
 }
 
-@media only screen and (max-width: 700px) {
+.copy-button:active {
+  background-color: #4a4a3a;
+  transform: scale(0.95);
+}
+
+.copy-button svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Улучшение для мобильных устройств */
+@media (hover: none) and (pointer: coarse) {
+  .copy-button:hover {
+    background-color: transparent;
+  }
+  
+  .copy-button:active {
+    background-color: #5f5e5d;
+  }
+  
+  .snippet-lang:hover {
+    background-color: #272822;
+  }
+  
+  .snippet-lang:active {
+    background-color: #3a3a32;
+  }
+}
+
+/* Мобильные устройства (телефоны) */
+@media only screen and (max-width: 768px) {
+  span.header-left {
+    font-size: 1.5em;
+    top: 20px;
+    left: 20px;
+    text-shadow: 
+      0 0 5px #FFD700,
+      0 0 10px #FFD700,
+      0 0 15px #FFD700,
+      0 0 20px #FFA500;
+  }
+
+  .nav {
+    left: 20px;
+    right: 20px;
+    top: 20px;
+    gap: 12px;
+  }
+
+  .nav a {
+    font-size: 14px;
+  }
+
+  a.bottom-left,
+  a.bottom-right {
+    bottom: 20px;
+    font-size: 12px;
+  }
+
+  a.bottom-left {
+    left: 20px;
+  }
+
+  a.bottom-right {
+    right: 20px;
+  }
+
+  .snippet-container {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .snippet-lang {
+    font-size: 14px;
+    padding: 8px 12px;
+    min-height: 44px; /* Минимальный размер для удобного касания */
+  }
+
+  .copy-button {
+    font-size: 16px;
+    padding: 14px 16px;
+    min-height: 44px; /* Минимальный размер для удобного касания */
+    min-width: 44px;
+  }
+
+  .code-container > pre[class*='language-'],
+  pre[class*='language-'] {
+    font-size: 0.7rem !important;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 1.5em !important;
+    margin: 0 !important;
+  }
+}
+
+/* Маленькие телефоны */
+@media only screen and (max-width: 480px) {
+  span.header-left {
+    font-size: 1.2em;
+    top: 15px;
+    left: 15px;
+    line-height: 1.2em;
+  }
+
+  .nav {
+    left: 15px;
+    right: 15px;
+    top: 15px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .nav a {
+    font-size: 12px;
+  }
+
+  a.bottom-left,
+  a.bottom-right {
+    bottom: 15px;
+    font-size: 11px;
+  }
+
+  a.bottom-left {
+    left: 15px;
+  }
+
+  a.bottom-right {
+    right: 15px;
+  }
+
+  .snippet-container {
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .snippet-lang {
+    font-size: 12px;
+    padding: 10px;
+    min-height: 40px;
+  }
+
+  .copy-button {
+    font-size: 14px;
+    padding: 12px;
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  .code-container > pre[class*='language-'],
+  pre[class*='language-'] {
+    font-size: 0.6rem !important;
+    padding: 1em !important;
+    margin: 0 !important;
+  }
+}
+
+/* Очень маленькие экраны */
+@media only screen and (max-width: 360px) {
   span.header-left {
     font-size: 1em;
   }
-  .main > .code {
-    margin-right: -0px;
-  }
-  .code-container > pre[class*='language-'] {
-    font-size: 0.6rem !important;
-    border-radius: 10px 10px 0 0 !important;
-  }
-  .counter {
-    position: absolute;
-    top: -120px;
+
+  .code-container > pre[class*='language-'],
+  pre[class*='language-'] {
+    font-size: 0.55rem !important;
+    padding: 0.8em !important;
+    margin: 0 !important;
   }
 }

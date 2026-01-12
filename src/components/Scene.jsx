@@ -62,30 +62,39 @@ function Experience() {
     },
   ]
 
+  // Определяем, является ли устройство мобильным
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+  const movementMultiplier = isMobile ? 10 : 20
+  const rotationMultiplier = isMobile ? 0.5 : 1
+  const fireflyCount = isMobile ? 10 : 20
+  const fireflyRadius = isMobile ? 60 : 80
+
   useFrame((state, delta) => {
     movement.lerp(temp.set(state.pointer.x, state.pointer.y * 0.2, 0), 0.2)
     group.current.position.x = MathUtils.lerp(
       group.current.position.x,
-      state.pointer.x * 20,
+      state.pointer.x * movementMultiplier,
       0.05,
     )
     group.current.rotation.x = MathUtils.lerp(
       group.current.rotation.x,
-      state.pointer.y / 20,
+      state.pointer.y / (20 * rotationMultiplier),
       0.05,
     )
     group.current.rotation.y = MathUtils.lerp(
       group.current.rotation.y,
-      -state.pointer.x / 2,
+      -state.pointer.x / (2 * rotationMultiplier),
       0.05,
     )
-    layersRef.current[4].uniforms.time.value =
-      layersRef.current[5].uniforms.time.value += delta
+    if (layersRef.current[4] && layersRef.current[5]) {
+      layersRef.current[4].uniforms.time.value =
+        layersRef.current[5].uniforms.time.value += delta
+    }
   }, 1)
 
   return (
     <group ref={group}>
-      <Fireflies count={20} radius={80} colors={['orange']} />
+      <Fireflies count={fireflyCount} radius={fireflyRadius} colors={['orange']} />
       {layers.map(
         (
           {
@@ -190,9 +199,12 @@ function Canvas({ children, onError }) {
             state.events.connect(document.getElementById('root'))
             state.setEvents({
               compute: (event, state) => {
+                // Поддержка как мыши, так и касаний
+                const clientX = event.touches ? event.touches[0].clientX : event.clientX
+                const clientY = event.touches ? event.touches[0].clientY : event.clientY
                 state.pointer.set(
-                  (event.clientX / state.size.width) * 2 - 1,
-                  -(event.clientY / state.size.height) * 2 + 1,
+                  (clientX / state.size.width) * 2 - 1,
+                  -(clientY / state.size.height) * 2 + 1,
                 )
                 state.raycaster.setFromCamera(state.pointer, state.camera)
               },
@@ -222,6 +234,10 @@ function Canvas({ children, onError }) {
         height: '100%',
         overflow: 'hidden',
         display: 'block',
+        touchAction: 'none',
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+        userSelect: 'none',
       }}
     />
   )
