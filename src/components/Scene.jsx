@@ -56,7 +56,7 @@ function Experience() {
       x: isMobile ? 6 : 0, // Смещение вправо для мобильных устройств
       y: 0,
       z: 30,
-      scaleFactor: 0.83,
+      scaleFactor: isMobile ? 0.65 : 0.83, // Уменьшен для мобильных устройств
       scale: scaleN,
     },
     {
