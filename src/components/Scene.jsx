@@ -28,9 +28,16 @@ function Experience() {
   const layersRef = useRef([])
   const [movement] = useState(() => new Vector3())
   const [temp] = useState(() => new Vector3())
+  const [tempLeaves1] = useState(() => new Vector3())
+  const [tempLeaves2] = useState(() => new Vector3())
   const deviceOrientation = useRef({ beta: 0, gamma: 0, available: false })
   const permissionRequested = useRef(false)
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+  // Разные параметры движения для каждого слоя листьев для эффекта 3D
+  const leaves1MovementOffset = useRef(new Vector3(0, 0, 0))
+  const leaves2MovementOffset = useRef(new Vector3(0, 0, 0))
+  const leaves1Time = useRef(0)
+  const leaves2Time = useRef(0)
   const layers = [
     { texture: textures[0], x: 0, y: 0, z: 0, factor: 0.005, scale: scaleW },
     { texture: textures[1], x: 0, y: 0, z: 10, factor: 0.005, scale: scaleW },
@@ -48,20 +55,22 @@ function Experience() {
       x: 0,
       y: 0,
       z: 40,
-      factor: 0.03,
+      factor: 0.025, // Немного уменьшен для предотвращения выхода за границы
       scaleFactor: 1,
       wiggle: 0.6,
       scale: scaleW,
+      layerIndex: 4, // Индекс для идентификации слоя листьев
     },
     {
       texture: textures[5],
       x: 0,
       y: 0,
       z: 49,
-      factor: 0.02,
+      factor: 0.015, // Немного уменьшен для предотвращения выхода за границы
       scaleFactor: 1.0,
       wiggle: 0.6,
       scale: scaleW2,
+      layerIndex: 5, // Индекс для идентификации слоя листьев
     },
   ]
 
@@ -218,9 +227,38 @@ function Experience() {
       -targetX / (2 * rotationMultiplier),
       0.05,
     )
-    if (layersRef.current[4] && layersRef.current[5]) {
-      layersRef.current[4].uniforms.time.value =
-        layersRef.current[5].uniforms.time.value += delta
+    
+    // Разное движение для каждого слоя листьев для эффекта 3D
+    // Первый слой листьев (индекс 4) - двигается быстрее и в одном направлении
+    if (layersRef.current[4]) {
+      leaves1Time.current += delta * 1.2 // Быстрее
+      layersRef.current[4].uniforms.time.value = leaves1Time.current
+      // Движение с небольшим смещением для параллакса
+      leaves1MovementOffset.current.lerp(
+        tempLeaves1.set(targetX * 0.8, targetY * 0.7, 0),
+        0.15
+      )
+      layersRef.current[4].uniforms.movementOffset.value = [
+        leaves1MovementOffset.current.x,
+        leaves1MovementOffset.current.y,
+        0
+      ]
+    }
+    
+    // Второй слой листьев (индекс 5) - двигается медленнее и в противоположном направлении
+    if (layersRef.current[5]) {
+      leaves2Time.current += delta * 0.8 // Медленнее
+      layersRef.current[5].uniforms.time.value = leaves2Time.current
+      // Движение с противоположным смещением для глубины
+      leaves2MovementOffset.current.lerp(
+        tempLeaves2.set(-targetX * 0.6, -targetY * 0.5, 0),
+        0.12
+      )
+      layersRef.current[5].uniforms.movementOffset.value = [
+        leaves2MovementOffset.current.x,
+        leaves2MovementOffset.current.y,
+        0
+      ]
     }
   }, 1)
 
@@ -256,6 +294,7 @@ function Experience() {
               ref={(el) => (layersRef.current[i] = el)}
               wiggle={wiggle}
               scale={scaleFactor}
+              movementOffset={[0, 0, 0]}
             />
           </Plane>
         ),
