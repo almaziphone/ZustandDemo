@@ -47,7 +47,7 @@ function Experience() {
   const layers = [
     { texture: textures[0], x: 0, y: 0, z: 0, factor: 0.005, scale: scaleW },
     { texture: textures[1], x: 0, y: 0, z: 10, factor: 0.005, scale: scaleW },
-    { texture: textures[2], x: 0, y: 0, z: 20, scale: scaleW },
+    // { texture: textures[2], x: 0, y: 0, z: 20, scale: scaleW },
     {
       texture: textures[3],
       x: isMobile ? 38 : 0, // Смещение вправо для мобильных устройств
@@ -72,7 +72,7 @@ function Experience() {
       y: 0,
       z: 49,
       factor: 0.015,
-      scaleFactor: 1.0,
+      scaleFactor: 1.5,
       wiggle: 0.6,
       scale: scaleW2,
     },
